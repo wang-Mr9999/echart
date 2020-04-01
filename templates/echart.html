@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html style="height: 100%"><head>
+       <meta charset="utf-8">
+   </head>
+   <body style="height: 100%; margin: 0">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"></link>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js" ></script>
+    <div id="container" style="height: 90%; user-select: none; position: relative;" _echarts_instance_="ec_1583665277106"><div style="position: relative; width: 1366px; height: 632px; padding: 0px; margin: 0px; border-width: 0px; cursor: default;"><canvas style="position: absolute; left: 0px; top: 0px; width: 1366px; height: 632px; user-select: none; padding: 0px; margin: 0px; border-width: 0px;" data-zr-dom-id="zr_0" width="1366" height="632"></canvas></div><div></div></div>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-stat/dist/ecStat.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/dist/extension/dataTool.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/map/js/china.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/map/js/world.js"></script>
+    <script type="text/javascript" src="https://api.map.baidu.com/api?v=3.0&amp;ak=C0WCzukOKniYr3ESNPCivzt4XSybVB77"></script><script type="text/javascript" src="https://api.map.baidu.com/getscript?v=3.0&amp;ak=C0WCzukOKniYr3ESNPCivzt4XSybVB77&amp;services=&amp;t=20200306163512"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/dist/extension/bmap.min.js"></script>
+    <script type="text/javascript">
+var dom = document.getElementById("container");
+var myChart = echarts.init(dom);
+var app = {};
+var symbolSize = 50;
+var data = (eval({{data|safe}})).data;
+var link = (eval({{link|safe}})).link;
+option = null;
+option = {
+    title: {
+        text: 'Graph 简单示例3 拖拽的实现'
+    },
+	grid: {
+        left: 20,
+        bottom: 20,
+        containLabel: true,
+		top: 50
+    },
+	xAxis: {
+		min:200,
+		max:1000,
+        type: 'value'
+    },
+    yAxis: {
+		min: 0,
+		max: 800,
+        type: 'value',
+        scale: true
+    },
+    tooltip: {
+		triggerOn: 'none',
+		formatter: function (params) {
+            return 'X: ' + params.data.value[0].toFixed(2) + '<br>Y: ' + params.data.value[1].toFixed(2);
+        }
+	},
+	animation: false,
+    series : [
+        {
+			id: 'a',
+            type: 'graph',
+			coordinateSystem: 'cartesian2d',
+            layout: 'none',
+            symbolSize: symbolSize,
+            roam: true,
+			draggable: true,
+            label: {
+                normal: {
+                    show: true
+                }
+            },
+            edgeSymbol: ['circle', 'arrow'],
+            edgeSymbolSize: [4, 10],
+            edgeLabel: {
+                normal: {
+                    textStyle: {
+                        fontSize: 20
+                    }
+                }
+            },
+            data: data,
+            links: link,
+            lineStyle: {
+                normal: {
+                    opacity: 0.9,
+                    width: 2,
+                    curveness: 0
+                }
+            }
+        }
+    ]
+};;
+
+setTimeout(function () {
+    // Add shadow circles (which is not visible) to enable drag.
+    myChart.setOption({
+        graphic: echarts.util.map(data, function (item, dataIndex) {
+            return {
+                type: 'circle',
+                position: myChart.convertToPixel('grid', item.value),
+                shape: {
+                    cx: 0,
+                    cy: 0,
+                    r: symbolSize / 2
+                },
+                invisible: true,
+                draggable: true,
+                ondrag: echarts.util.curry(onPointDragging, dataIndex),
+				onmousemove: echarts.util.curry(showTooltip, dataIndex),
+                onmouseout: echarts.util.curry(hideTooltip, dataIndex),
+                z: 100
+            };
+        })
+    });
+}, 0);
+
+function onPointDragging(dataIndex, dx, dy) {
+    data[dataIndex].value = myChart.convertFromPixel('grid', this.position);
+
+    // Update data
+    myChart.setOption({
+        series: [{
+            id: 'a',
+            data: data
+        }]
+    });
+}
+
+function showTooltip(dataIndex) {
+    myChart.dispatchAction({
+        type: 'showTip',
+        seriesIndex: 0,
+        dataIndex: dataIndex
+    });
+}
+
+function hideTooltip(dataIndex) {
+    myChart.dispatchAction({
+        type: 'hideTip'
+    });
+}
+
+if (option && typeof option === "object") {
+    myChart.setOption(option, true);
+}
+       </script>
+    <div style="text-align: center">
+        <button onclick="add()">添加</button>
+        <button onclick="add()">删除</button>
+        <button onclick="add()">修改</button>
+    </div>
+    <div id="dialog" title="添加数据"  style="display: none" >
+	    <form>
+	        <p>&nbsp;&nbsp;数&nbsp;&nbsp;&nbsp;据&nbsp;&nbsp;：<input type="text" id="create_data" /></p>
+	        <p>&nbsp;x轴坐标&nbsp;：<input type="text" id="create_x" /></p>
+            <p>&nbsp;y轴坐标&nbsp;：<input type="text" id="create_y" /></p>
+            <p>&nbsp;&nbsp;方&nbsp;&nbsp;&nbsp;向&nbsp;&nbsp;：<input type="text" id="create_link1" size="2" />----><input type="text" id="create_link2"  size="2"/></p>
+	        <div style="text-align:center">
+		       <button class="my-btn-blue"   onclick="create_paper_save()">保存</button>
+		    </div>
+	    </form>
+    </div>
+   <script>
+        var add=function(){
+		  $('#dialog').dialog({
+			  modal:true,
+			  width:"400",
+	    	  height:"300"
+		  	});
+		  document.getElementById("dialog").style.display="block";
+	  };
+        var create_paper_save=function(){
+        	var create_data = document.getElementById("create_data").value;
+        	var create_x = document.getElementById("create_x").value;
+        	var create_y = document.getElementById("create_y").value;
+        	var create_link1 = document.getElementById("create_link1").value;
+        	var create_link2 = document.getElementById("create_link2").value;
+    		if (create_data) {
+                $.ajax({
+                    url: '/create',
+                    headers: { "Content-Type": "application/json;charset=utf-8" },
+                    contentType:'application/json; charset=utf-8',
+                    data: JSON.stringify({
+                        data:{"name": create_data, "value": [create_x,create_y]},
+                        link:{"source": create_link1, "target": create_link2},
+                    }),
+                    type: 'POST',
+              　　  success:function(data){
+                        alert("成功！")
+                    }
+                    });
+                }
+    		else {
+                alert("保存失败！");
+            }
+    	};
+   </script>
+   </body></html>

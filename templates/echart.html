@@ -142,10 +142,9 @@ if (option && typeof option === "object") {
        </script>
     <div style="text-align: center">
         <button onclick="add()">添加</button>
-        <button onclick="add()">删除</button>
-        <button onclick="add()">修改</button>
+        <button onclick="del()">删除</button>
     </div>
-    <div id="dialog" title="添加数据"  style="display: none" >
+    <div id="create" title="添加数据"  style="display: none" >
 	    <form>
 	        <p>&nbsp;&nbsp;数&nbsp;&nbsp;&nbsp;据&nbsp;&nbsp;：<input type="text" id="create_data" /></p>
 	        <p>&nbsp;x轴坐标&nbsp;：<input type="text" id="create_x" /></p>
@@ -156,14 +155,30 @@ if (option && typeof option === "object") {
 		    </div>
 	    </form>
     </div>
+    <div id="delete" title="删除数据"  style="display: none" >
+	    <form>
+	        <p>&nbsp;&nbsp;数&nbsp;&nbsp;&nbsp;据&nbsp;&nbsp;：<input type="text" id="delete_data" /></p>
+	        <div style="text-align:center">
+		       <button class="my-btn-blue"   onclick="delete_paper_save()">确认</button>
+		    </div>
+	    </form>
+    </div>
    <script>
         var add=function(){
-		  $('#dialog').dialog({
+		  $('#create').dialog({
 			  modal:true,
 			  width:"400",
 	    	  height:"300"
 		  	});
-		  document.getElementById("dialog").style.display="block";
+		  document.getElementById("create").style.display="block";
+	  };
+        var del=function(){
+		  $('#delete').dialog({
+			  modal:true,
+			  width:"400",
+	    	  height:"200"
+		  	});
+		  document.getElementById("").style.display="block";
 	  };
         var create_paper_save=function(){
         	var create_data = document.getElementById("create_data").value;
@@ -182,12 +197,32 @@ if (option && typeof option === "object") {
                     }),
                     type: 'POST',
               　　  success:function(data){
-                        alert("成功！")
+                        alert("添加成功！")
                     }
                     });
                 }
     		else {
-                alert("保存失败！");
+                alert("添加失败！");
+            }
+    	};
+        var delete_paper_save=function(){
+        	var delete_data = document.getElementById("delete_data").value;
+    		if (delete_data) {
+                $.ajax({
+                    url: '/del',
+                    headers: { "Content-Type": "application/json;charset=utf-8" },
+                    contentType:'application/json; charset=utf-8',
+                    data: JSON.stringify({
+                        data:{"name": delete_data},
+                    }),
+                    type: 'POST',
+              　　  success:function(data){
+                        alert("删除成功！")
+                    }
+                    });
+                }
+    		else {
+                alert("删除失败！");
             }
     	};
    </script>

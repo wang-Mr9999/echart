@@ -23,7 +23,6 @@ def readfile(data_path,link_path):
 def create():
     if request.method == 'POST':
         create = json.loads(request.get_data(as_text=True))
-        print(create)
         with open("link.json",'rb')as f:
             data=json.load(f)
             f.close()
@@ -39,7 +38,31 @@ def create():
         with open("data.json",'w')as f:
             f.write(json.dumps(data,indent=4))
             f.close()
-    make_response('/')
+
+@app.route('/del',methods=['POST'])
+def delete():
+    if request.method == 'POST':
+        del_data = json.loads(request.get_data(as_text=True))
+        print(del_data['data']['name'])
+        with open("data.json", 'rb')as f:
+            data = json.load(f)
+            f.close()
+        n=[]
+        for i, data1 in enumerate(data['data']):
+            print(i, data1)
+            print(type(data1['name'] ))
+            print(type(del_data['data']['name']))
+            if data1['name'] == int(del_data['data']['name']):
+                print(type(i))
+                n.append(i)
+        n.reverse()
+        print(n)
+        for i in range(0, len(n)):
+            del data['data'][int(n[i])]
+        print(data)
+        with open("data.json", 'w')as f:
+            f.write(json.dumps(data, indent=4))
+            f.close()
 
 if __name__ == '__main__':
     app.run(debug=True)

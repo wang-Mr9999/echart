@@ -39,7 +39,6 @@ def create():
         with open("data.json",'w')as f:
             f.write(json.dumps(data,indent=4))
             f.close()
-    make_response('/')
 
 if __name__ == '__main__':
     app.run(debug=True)

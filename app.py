@@ -23,13 +23,6 @@ def readfile(data_path,link_path):
 def create():
     if request.method == 'POST':
         create = json.loads(request.get_data(as_text=True))
-        with open("link.json",'rb')as f:
-            data=json.load(f)
-            f.close()
-        data['link'].append(create['link'])
-        with open("link.json",'w')as f:
-            f.write(json.dumps(data,indent=4))
-            f.close()
         ##  create data
         with open("data.json",'rb')as f:
             data=json.load(f)
@@ -38,29 +31,64 @@ def create():
         with open("data.json",'w')as f:
             f.write(json.dumps(data,indent=4))
             f.close()
+        for i, data1 in enumerate(data['data']):
+            if str(data1['name'])==str(create['link']["source"]):
+                link1=i
+        for i, data1 in enumerate(data['data']):
+            if str(data1['name'])==str(create['link']["target"]):
+                link2=i
+        with open("link.json",'rb')as f:
+            data=json.load(f)
+            f.close()
+        data['link'].append({"source": link1, "target": link2})
+        with open("link.json",'w')as f:
+            f.write(json.dumps(data,indent=4))
+            f.close()
+
 
 @app.route('/del',methods=['POST'])
 def delete():
     if request.method == 'POST':
         del_data = json.loads(request.get_data(as_text=True))
-        print(del_data['data']['name'])
+        ###处理data.json文件
         with open("data.json", 'rb')as f:
             data = json.load(f)
             f.close()
-        n=[]
+        dn=[]
         for i, data1 in enumerate(data['data']):
-            print(i, data1)
-            print(type(data1['name'] ))
-            print(type(del_data['data']['name']))
-            if data1['name'] == int(del_data['data']['name']):
-                print(type(i))
-                n.append(i)
-        n.reverse()
-        print(n)
-        for i in range(0, len(n)):
-            del data['data'][int(n[i])]
-        print(data)
+            if data1['name'] == del_data['data']['name']:
+                dn.append(i)
+        del data['data'][int(dn[0])]
         with open("data.json", 'w')as f:
+            f.write(json.dumps(data, indent=4))
+            f.close()
+        ####处理link.json文件
+        ln = []
+        with open("link.json", 'rb')as f:
+            data = json.load(f)
+            f.close()
+        ##  寻找相同的index，这个index也可以是data的
+        for i, data1 in enumerate(data['link']):
+            if int(data1['source']) == int(dn[0]):
+                ln.append(i)
+            if int(data1['target']) == int(dn[0]):
+                ln.append(i)
+
+        ### 删除相同的link index标签
+        ln.reverse()
+        for i in range(0, len(ln)):
+            del data['link'][int(ln[i])]
+        print(data)
+        ### 处理大于index的，处理小于index的
+        for data3 in data['link']:
+            if int(data3['source']) > int(dn[0]):
+                data3['source'] = int(data3['source']) - 1
+            if int(data3['target']) > int(dn[0]):
+                data3['target'] = int(data3['target']) - 1
+
+        print(data)
+        ###  写文件
+        with open("link.json", 'w')as f:
             f.write(json.dumps(data, indent=4))
             f.close()
 
